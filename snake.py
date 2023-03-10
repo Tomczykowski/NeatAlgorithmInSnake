@@ -1,3 +1,5 @@
+import random
+
 from enum import Enum
 
 
@@ -15,7 +17,7 @@ class Snake:
         self.direction = None
         self.body = None
         self.head_color = (0, 150, 0)
-        self.color = (0, 200, 0)
+        self.color = tuple([random.randint(30, 220) for _ in range(3)])
         self.block_size = block_size
         self.bounds = bounds
         self.respawn()
@@ -62,11 +64,11 @@ class Snake:
     def eat(self):
         self.length += 1
 
-    def check_for_food(self, food):
+    def check_for_food(self, food, game_state):
         head = self.body[-1]
         if head[0] == food.x and head[1] == food.y:
             self.eat()
-            food.respawn()
+            food.respawn(game_state)
             return 1.001  # This is for reinforcement learning
         return 0
 

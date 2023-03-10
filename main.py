@@ -9,37 +9,6 @@ from model import SVM
 from food import Food
 from snake import Snake, Direction
 
-
-class HumanAgent:
-    def __init__(self, block_size, bounds):
-        self.block_size = block_size
-        self.bounds = bounds
-        self.data = []
-
-    def act(self, game_state) -> Direction:
-        keys = pygame.key.get_pressed()
-        action = game_state["snake_direction"]
-        if keys[pygame.K_LEFT]:
-            action = Direction.LEFT
-        elif keys[pygame.K_RIGHT]:
-            action = Direction.RIGHT
-        elif keys[pygame.K_UP]:
-            action = Direction.UP
-        elif keys[pygame.K_DOWN]:
-            action = Direction.DOWN
-
-        self.data.append((copy.deepcopy(game_state), action))
-        return action
-
-    def dump_data(self):
-        os.makedirs("data", exist_ok=True)
-        current_time = time.strftime('%Y.%m.%d.%H.%M.%S')
-        with open(f"data/{current_time}.pickle", 'wb') as f:
-            pickle.dump({"block_size": self.block_size,
-                         "bounds": self.bounds,
-                         "data": self.data[:-10]}, f)  # Last 10 frames are when you press exit, so they are bad, skip
-
-
 class BehavioralCloningAgent:
     def __init__(self, path):
         self.svm_player = SVM(path)
@@ -72,7 +41,7 @@ def distance_from_obstacle_up(x, y, snake_body, block_size=30):
     return distance_to_obstacle
 
 
-def distance_from_obstacle_right(x, y, snake_body, block_size=30, bound=300):
+def distance_from_obstacle_right(x, y, snake_body, block_size=30, bound=900):
     distance_to_obstacle = (bound - x) // block_size
     for body in snake_body:
         if y == body[1] and x < body[0]:
@@ -82,7 +51,7 @@ def distance_from_obstacle_right(x, y, snake_body, block_size=30, bound=300):
     return distance_to_obstacle
 
 
-def distance_from_obstacle_down(x, y, snake_body, block_size=30, bound=300):
+def distance_from_obstacle_down(x, y, snake_body, block_size=30, bound=900):
     distance_to_obstacle = (bound - y) // block_size
     for body in snake_body:
         if x == body[0] and y < body[1]:
@@ -102,18 +71,24 @@ def distance_from_obstacle_left(x, y, snake_body, block_size=30):
     return distance_to_obstacle
 
 
+def distance_to_food(head, food):
+    distance = food - head
+    return distance
+
+
+
 def make_attributes(game_state):
     attributes = []
     head_x = game_state['snake_body'][-1][0]
     head_y = game_state['snake_body'][-1][1]
-    attributes.append(head_x)
-    attributes.append(head_y)
-    attributes.append(game_state['food'][0])
-    attributes.append(game_state['food'][1])
+    food_x = game_state['food'][0]
+    food_y = game_state['food'][1]
     attributes.append(distance_from_obstacle_up(head_x, head_y, game_state['snake_body']))
     attributes.append(distance_from_obstacle_right(head_x, head_y, game_state['snake_body']))
     attributes.append(distance_from_obstacle_down(head_x, head_y, game_state['snake_body']))
     attributes.append(distance_from_obstacle_left(head_x, head_y, game_state['snake_body']))
+    attributes.append(distance_to_food(head_y, food_y))
+    attributes.append(distance_to_food(head_x, food_x))
     return attributes
 
 
@@ -123,9 +98,11 @@ def fitness(genomes, config):
     snakes = []
     foods = []
     game_states = []
+    best_score = []
+    dead_road = []
 
     pygame.init()
-    bounds = (300, 300)
+    bounds = (600, 600)
     window = pygame.display.set_mode(bounds)
     pygame.display.set_caption("Snake")
 
@@ -170,14 +147,24 @@ def fitness(genomes, config):
 
         for idx, snake in enumerate(snakes):
             snake.move()
-            snake.check_for_food(foods[idx])
-
-        for idx, snake in enumerate(snakes):
-            if snake.is_wall_collision() or snake.is_tail_collision():
-                #pygame.display.update()                 # ???????????????
+            if snake.check_for_food(foods[idx], game_states[idx]) == 1.001:
+                dead_road[idx] = bounds[0]**2/block_size**2
+            dead_road[idx] -= 1
+            if snake.is_wall_collision() or snake.is_tail_collision() or dead_road[idx] <= 0:
+                if dead_road[idx] == 0:
+                    ge[idx].fitness -= bounds[0]**2/block_size**2 * 0.001
                 snake.alive = False
                 snakes_alive -= 1
-                ge[idx].fitness = snake.length - 3
+                ge[idx].fitness += snake.length - 3
+                best_score[idx] = snake.length - 3
+                snakes.pop(idx)
+                foods.pop(idx)
+                networks.pop(idx)
+                ge.pop(idx)
+                game_states.pop(idx)
+                dead_road.pop(idx)
+            else:
+                ge[idx].fitness += 0.001
 
         window.fill((0, 0, 0))
         for idx, snake in enumerate(snakes):
@@ -204,7 +191,7 @@ def run():
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(fitness, 400)
+    winner = p.run(fitness, 1000)
 
 
 if __name__ == "__main__":
