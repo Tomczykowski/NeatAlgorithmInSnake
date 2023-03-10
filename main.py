@@ -9,27 +9,6 @@ from model import SVM
 from food import Food
 from snake import Snake, Direction
 
-class BehavioralCloningAgent:
-    def __init__(self, path):
-        self.svm_player = SVM(path)
-        self.svm_player.make_attributes()
-        self.svm_player.fit()
-
-    def act(self, game_state) -> Direction:
-        attributes = self.svm_player.make_attributes_from_game_state(game_state)
-        next_move = self.svm_player.game_state_to_data_sample(attributes)
-        if next_move == 3:
-            return Direction.LEFT
-        elif next_move == 1:
-            return Direction.RIGHT
-        elif next_move == 0:
-            return Direction.UP
-        elif next_move == 2:
-            return Direction.DOWN
-
-    def dump_data(self):
-        pass
-
 
 def distance_from_obstacle_up(x, y, snake_body, block_size=30):
     distance_to_obstacle = y // block_size + 1
@@ -116,6 +95,8 @@ def fitness(genomes, config):
         genome.fitness = 0
         ge.append(genome)
         game_states.append(0)
+        best_score.append(0)
+        dead_road.append(bounds[0]**2/block_size**2)
 
     snakes_alive = len(snakes)
 
@@ -174,6 +155,7 @@ def fitness(genomes, config):
         pygame.display.update()
 
     pygame.quit()
+    print(max(best_score))
 
 
 def main():

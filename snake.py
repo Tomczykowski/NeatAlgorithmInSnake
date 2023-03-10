@@ -23,7 +23,7 @@ class Snake:
         self.respawn()
 
     def respawn(self):
-        self.body = [(self.block_size, i*self.block_size) for i in range(3)]
+        self.body = [(self.bounds[0]/2, i*self.block_size + self.bounds[1]/2) for i in range(-3, 0)]
         self.length = len(self.body)
         self.direction = Direction.DOWN
 
