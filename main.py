@@ -1,6 +1,3 @@
-import copy
-import os
-import pickle
 import pygame
 import time
 import neat
@@ -20,7 +17,7 @@ def distance_from_obstacle_up(x, y, snake_body, block_size=30):
     return distance_to_obstacle
 
 
-def distance_from_obstacle_right(x, y, snake_body, block_size=30, bound=900):
+def distance_from_obstacle_right(x, y, snake_body, block_size=30, bound=600):
     distance_to_obstacle = (bound - x) // block_size
     for body in snake_body:
         if y == body[1] and x < body[0]:
@@ -30,7 +27,7 @@ def distance_from_obstacle_right(x, y, snake_body, block_size=30, bound=900):
     return distance_to_obstacle
 
 
-def distance_from_obstacle_down(x, y, snake_body, block_size=30, bound=900):
+def distance_from_obstacle_down(x, y, snake_body, block_size=30, bound=600):
     distance_to_obstacle = (bound - y) // block_size
     for body in snake_body:
         if x == body[0] and y < body[1]:
@@ -53,7 +50,6 @@ def distance_from_obstacle_left(x, y, snake_body, block_size=30):
 def distance_to_food(head, food):
     distance = food - head
     return distance
-
 
 
 def make_attributes(game_state):
