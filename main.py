@@ -1,8 +1,6 @@
 import pygame
-import time
 import neat
 
-from model import SVM
 from food import Food
 from snake import Snake, Direction
 
@@ -68,20 +66,13 @@ def make_attributes(game_state):
 
 
 def fitness(genomes, config):
-    networks = []
-    ge = []
-    snakes = []
-    foods = []
-    game_states = []
-    best_score = []
-    dead_road = []
+    networks, ge, snakes, foods, game_states, best_score, dead_road = [], [], [], [], [], [], []
 
     pygame.init()
     bounds = (600, 600)
+    block_size = 30
     window = pygame.display.set_mode(bounds)
     pygame.display.set_caption("Snake")
-
-    block_size = 30
 
     for _, genome in genomes:
         network = neat.nn.FeedForwardNetwork.create(genome, config)
