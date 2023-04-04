@@ -113,7 +113,6 @@ def fitness(genomes, config):
             elif act == output[3]:
                 snake.turn(Direction.LEFT)
 
-        for idx, snake in enumerate(snakes):
             snake.move()
             if snake.check_for_food(foods[idx], game_states[idx]) == 1.001:
                 dead_road[idx] = bounds[0]**2/block_size**2
@@ -135,6 +134,7 @@ def fitness(genomes, config):
                 ge[idx].fitness += 0.001
 
         window.fill((0, 0, 0))
+
         for idx, snake in enumerate(snakes):
             if snake.alive:
                 snake.draw(pygame, window)
@@ -146,10 +146,6 @@ def fitness(genomes, config):
 
 
 def main():
-    run()
-
-
-def run():
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          "config_file.txt")
