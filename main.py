@@ -3,11 +3,12 @@ import neat
 
 from food import Food
 from snake import Snake, Direction
-from fitness_function import make_attributes
+from attributes import make_attributes
 
 
-bounds = (300, 300)
-block_size = 30
+bounds = (300, 300)     # Change this to change the size of field
+block_size = 30         # Change this to change size of one block
+num_generations = 1000  # Change this to the desired number of generations to run
 
 
 def fitness(genomes, config):
@@ -98,7 +99,7 @@ def main():
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(fitness, 1000)
+    winner = p.run(fitness, num_generations)
     print(winner)
 
 
