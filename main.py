@@ -34,7 +34,7 @@ def fitness(genomes, config):
     pygame.time.delay(100)
     while snakes_alive != 0 and run:
         snakes_alive = len(snakes)
-        pygame.time.delay(20)  # Adjust game speed, decrease to test your agent and model quickly
+        pygame.time.delay(10)  # Adjust game speed, decrease to test your model quickly
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -99,6 +99,7 @@ def main():
     p.add_reporter(stats)
 
     winner = p.run(fitness, 1000)
+    print(winner)
 
 
 if __name__ == "__main__":

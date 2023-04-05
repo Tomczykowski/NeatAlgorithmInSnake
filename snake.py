@@ -68,8 +68,8 @@ class Snake:
         if head[0] == food.x and head[1] == food.y:
             self.eat()
             food.respawn(game_state)
-            return 1.001  # This is for reinforcement learning
-        return 0
+            return True
+        return False
 
     def is_tail_collision(self):
         head = self.body[-1]
@@ -79,7 +79,6 @@ class Snake:
             segment = self.body[i]
             if head[0] == segment[0] and head[1] == segment[1]:
                 has_eaten_tail = True
-
         return has_eaten_tail
 
     def is_wall_collision(self):
