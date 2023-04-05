@@ -3,74 +3,17 @@ import neat
 
 from food import Food
 from snake import Snake, Direction
+from fitness_function import make_attributes
 
 
-def distance_from_obstacle_up(x, y, snake_body, block_size=30):
-    distance_to_obstacle = y // block_size + 1
-    for body in snake_body:
-        if x == body[0] and y > body[1]:
-            distance = (y - body[1]) // block_size
-            if distance < distance_to_obstacle:
-                distance_to_obstacle = distance
-    return distance_to_obstacle
-
-
-def distance_from_obstacle_right(x, y, snake_body, block_size=30, bound=600):
-    distance_to_obstacle = (bound - x) // block_size
-    for body in snake_body:
-        if y == body[1] and x < body[0]:
-            distance = (body[0] - x) // block_size
-            if distance < distance_to_obstacle:
-                distance_to_obstacle = distance
-    return distance_to_obstacle
-
-
-def distance_from_obstacle_down(x, y, snake_body, block_size=30, bound=600):
-    distance_to_obstacle = (bound - y) // block_size
-    for body in snake_body:
-        if x == body[0] and y < body[1]:
-            distance = (body[1] - y) // block_size
-            if distance < distance_to_obstacle:
-                distance_to_obstacle = distance
-    return distance_to_obstacle
-
-
-def distance_from_obstacle_left(x, y, snake_body, block_size=30):
-    distance_to_obstacle = x // block_size + 1
-    for body in snake_body:
-        if y == body[1] and x > body[0]:
-            distance = (x - body[0]) // block_size
-            if distance < distance_to_obstacle:
-                distance_to_obstacle = distance
-    return distance_to_obstacle
-
-
-def distance_to_food(head, food):
-    distance = food - head
-    return distance
-
-
-def make_attributes(game_state):
-    attributes = []
-    head_x = game_state['snake_body'][-1][0]
-    head_y = game_state['snake_body'][-1][1]
-    food_x = game_state['food'][0]
-    food_y = game_state['food'][1]
-    attributes.append(distance_from_obstacle_up(head_x, head_y, game_state['snake_body']))
-    attributes.append(distance_from_obstacle_right(head_x, head_y, game_state['snake_body']))
-    attributes.append(distance_from_obstacle_down(head_x, head_y, game_state['snake_body']))
-    attributes.append(distance_from_obstacle_left(head_x, head_y, game_state['snake_body']))
-    attributes.append(distance_to_food(head_y, food_y))
-    attributes.append(distance_to_food(head_x, food_x))
-    return attributes
+bounds = (300, 300)
+block_size = 30
 
 
 def fitness(genomes, config):
     networks, ge, snakes, foods, game_states, best_score, dead_road = [], [], [], [], [], [], []
 
     pygame.init()
-    bounds = (600, 600)
-    block_size = 30
     window = pygame.display.set_mode(bounds)
     pygame.display.set_caption("Snake")
 
@@ -99,10 +42,10 @@ def fitness(genomes, config):
 
         for idx, snake in enumerate(snakes):
             game_states[idx] = {"food": (foods[idx].x, foods[idx].y),
-                          "snake_body": snake.body,  # The last element is snake's head
-                          "snake_direction": snake.direction}
+                                "snake_body": snake.body,  # The last element is snake's head
+                                "snake_direction": snake.direction}
 
-            output = networks[idx].activate(make_attributes(game_states[idx]))
+            output = networks[idx].activate(make_attributes(game_states[idx], bounds, block_size))
             act = max(output)
             if act == output[0]:
                 snake.turn(Direction.UP)
@@ -114,8 +57,8 @@ def fitness(genomes, config):
                 snake.turn(Direction.LEFT)
 
             snake.move()
-            if snake.check_for_food(foods[idx], game_states[idx]) == 1.001:
-                dead_road[idx] = bounds[0]**2/block_size**2
+            if snake.check_for_food(foods[idx], game_states[idx]):
+                dead_road[idx] = bounds[0]*bounds[1]/block_size**2
             dead_road[idx] -= 1
             if snake.is_wall_collision() or snake.is_tail_collision() or dead_road[idx] <= 0:
                 if dead_road[idx] == 0:
@@ -131,7 +74,7 @@ def fitness(genomes, config):
                 game_states.pop(idx)
                 dead_road.pop(idx)
             else:
-                ge[idx].fitness += 0.001
+                ge[idx].fitness += 0.01
 
         window.fill((0, 0, 0))
 
@@ -151,7 +94,6 @@ def main():
                          "config_file.txt")
 
     p = neat.Population(config)
-
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)

@@ -23,11 +23,3 @@ class Food:
         while (self.x, self.y) in game_state['snake_body']:
             self.x = random.randint(0, blocks_in_x - 1) * self.block_size
             self.y = random.randint(0, blocks_in_y - 1) * self.block_size
-
-    def update(self):
-        if random.random() < 0.01:
-            self.color = tuple([random.randint(30, 220) for _ in range(3)])
-        self.time_left -= 1
-        if self.time_left < 0:
-            self.time_left = self.lifetime
-            self.respawn()
