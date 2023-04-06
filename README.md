@@ -8,9 +8,21 @@ The project consists of main parts:
 4. main.py - a main file containing the code for the NEAT algorithm that teaches the snake how to play.
 
 ## Game
-1. Generations 1 to 5
-2. Generations 15 to 20
-3. Generations 50 to 55
+1. Generations 1 to 5  
+<img src="https://user-images.githubusercontent.com/45266568/230426793-1ba72b44-d01c-434d-9bfc-afbe14772390.gif" width="300" height="323" />
+
+
+2. Generations 15 to 20  
+<img src="https://user-images.githubusercontent.com/45266568/230427129-8574cde0-9ec8-4edb-8161-16961abcfa32.gif" width="300" height="323" />
+
+
+3. Generations 50 to 55  
+<img src="https://user-images.githubusercontent.com/45266568/230428658-134d8291-bca8-4e0c-ac26-894bed420709.gif" width="300" height="323" />
+
+4. Bigger board  
+<img src="https://user-images.githubusercontent.com/45266568/230427201-ce278505-55d1-443d-a005-263d05518898.gif" width="300" height="323" />
+
+
 ## Used libraries
 1. Pygame
 2. Neat
