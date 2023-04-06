@@ -7,6 +7,10 @@ The project consists of main parts:
 3. config_file.txt - a text file with all the configuration for the algorithm.
 4. main.py - a main file containing the code for the NEAT algorithm that teaches the snake how to play.
 
+## Game
+1. Generations 1 to 5
+2. Generations 15 to 20
+3. Generations 50 to 55
 ## Used libraries
 1. Pygame
 2. Neat
